@@ -49,16 +49,8 @@ public class SellerDaoJDBC implements SellerDao {
             comando.setInt(1, id);
             resultado = comando.executeQuery();
             if(resultado.next()){
-                Department departamento = new Department();
-                departamento.setId(resultado.getInt("DepartmentId"));
-                departamento.setName(resultado.getString("DepName"));
-                Seller vendedor = new Seller();
-                vendedor.setId(resultado.getInt("Id"));
-                vendedor.setName(resultado.getString("Email"));
-                vendedor.setEmail(resultado.getString("Email"));
-                vendedor.setBaseSalary(resultado.getDouble("BaseSalary"));
-                vendedor.setBirthDate(resultado.getDate("BirthDate"));
-                vendedor.setDepartment(departamento);
+                Department departamento = instanciarDepartamento(resultado);
+                Seller vendedor = instaciarVendedor(resultado, departamento);
                 return vendedor;
             }
             return null;
@@ -70,6 +62,24 @@ public class SellerDaoJDBC implements SellerDao {
             DB.fecharcomando(comando);
             DB.fecharResultado(resultado);
         }
+    }
+
+private Seller instaciarVendedor(ResultSet resultado, Department departamento) throws SQLException{
+        Seller vendedor = new Seller();
+        vendedor.setId(resultado.getInt("Id"));
+        vendedor.setName(resultado.getString("Email"));
+        vendedor.setEmail(resultado.getString("Email"));
+        vendedor.setBaseSalary(resultado.getDouble("BaseSalary"));
+        vendedor.setBirthDate(resultado.getDate("BirthDate"));
+        vendedor.setDepartment(departamento);
+        return vendedor;
+    }
+
+    private Department instanciarDepartamento(ResultSet resultado) throws SQLException {
+        Department departamento = new Department();
+        departamento.setId(resultado.getInt("DepartmentId"));
+        departamento.setName(resultado.getString("DepName"));
+        return departamento;
     }
 
     @Override
