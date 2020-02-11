@@ -10,7 +10,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SellerDaoJDBC implements SellerDao {
 
@@ -21,12 +24,12 @@ public class SellerDaoJDBC implements SellerDao {
     }
 
     @Override
-    public void insert(Seller departamento) {
+    public void insert(Seller vendedor) {
 
     }
 
     @Override
-    public void update(Seller departamento) {
+    public void update(Seller vendedor) {
 
     }
 
@@ -64,7 +67,7 @@ public class SellerDaoJDBC implements SellerDao {
         }
     }
 
-private Seller instaciarVendedor(ResultSet resultado, Department departamento) throws SQLException{
+    private Seller instaciarVendedor(ResultSet resultado, Department departamento) throws SQLException{
         Seller vendedor = new Seller();
         vendedor.setId(resultado.getInt("Id"));
         vendedor.setName(resultado.getString("Email"));
@@ -85,5 +88,39 @@ private Seller instaciarVendedor(ResultSet resultado, Department departamento) t
     @Override
     public List<Seller> findAll() {
         return null;
+    }
+
+    @Override
+    public List<Seller> findByDepartment(Department departmento) {
+        PreparedStatement comando = null;
+        ResultSet resultado = null;
+
+        try{
+            comando = conn.prepareStatement(
+                    "SELECT seller.*, department.Name as DepName "+
+                            "FROM seller INNER JOIN department "+
+                            "ON seller.DepartmentId = department.Id "+
+                            "WHERE DepartmentId = ? "+
+                            "ORDER BY Name"
+            );
+            comando.setInt(1, departmento.getId());
+            resultado = comando.executeQuery();
+            List<Seller> vendedores = new ArrayList<>();
+            Map<Integer, Department> map = new HashMap<>();
+            while (resultado.next()){
+                Department departamento = map.get(resultado.getInt("DepartmentId"));
+                if(departamento == null){
+                    departamento = instanciarDepartamento(resultado);
+                    map.put(resultado.getInt("DepartmentId"),departamento);
+                }
+                Seller vendedor = instaciarVendedor(resultado, departamento);
+                vendedores.add(vendedor);
+            }
+
+            return vendedores;
+
+        }catch (SQLException e){
+            throw new DbException(e.getMessage());
+        }
     }
 }
