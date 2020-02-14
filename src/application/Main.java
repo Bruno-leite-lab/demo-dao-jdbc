@@ -36,5 +36,10 @@ public class Main {
         vendedor3.setName("Martha kant");
         sellerDao.update(vendedor3);
         System.out.println("Atualizacao de dados completa!");
+
+        System.out.println("===== Teste 6: seller delete =======");
+        Seller vendedor4 = sellerDao.findById(10);
+        sellerDao.deleteById(vendedor4.getId());
+        System.out.println("vendedor excluido !");
     }
 }
