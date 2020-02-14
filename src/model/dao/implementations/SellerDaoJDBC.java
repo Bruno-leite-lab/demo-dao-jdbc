@@ -43,6 +43,7 @@ public class SellerDaoJDBC implements SellerDao {
                     int id = resultado.getInt(1);
                     vendedor.setId(id);
                 }
+                DB.fecharResultado(resultado);
             }
             else {
                 throw new DbException("Erro inesperado. Nenhuma linha afetada");
