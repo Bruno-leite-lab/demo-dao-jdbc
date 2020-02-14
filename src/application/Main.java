@@ -25,5 +25,16 @@ public class Main {
         for(Seller seller : lista){
             System.out.println(seller);
         }
+
+        System.out.println("===== Teste 4: seller findAll =======");
+        Seller vendedor2 = new Seller(null,"john","john@gmail.com",new Date(),4000.0, dep);
+        sellerDao.insert(vendedor2);
+        System.out.println("Inserido ! Novo Id = "+ vendedor2.getId());
+
+        System.out.println("===== Teste 5: seller update =======");
+        Seller vendedor3 = sellerDao.findById(1);
+        vendedor3.setName("Martha kant");
+        sellerDao.update(vendedor3);
+        System.out.println("Atualizacao de dados completa!");
     }
 }

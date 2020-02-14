@@ -6,10 +6,7 @@ import model.dao.SellerDao;
 import model.entities.Department;
 import model.entities.Seller;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,12 +22,69 @@ public class SellerDaoJDBC implements SellerDao {
 
     @Override
     public void insert(Seller vendedor) {
+        PreparedStatement comando = null;
+        try{
+            comando = conn.prepareStatement(
+                    "INSERT INTO seller "+
+                            "(Name, Email, BirthDate, BaseSalary, DepartmentId) "+
+                            "VALUES (?,?,?,?,?)",
+                    Statement.RETURN_GENERATED_KEYS
+            );
+            comando.setString(1, vendedor.getName());
+            comando.setString(2, vendedor.getEmail());
+            comando.setDate(3, new Date(vendedor.getBirthDate().getTime()));
+            comando.setDouble(4, vendedor.getBaseSalary());
+            comando.setInt(5, vendedor.getDepartment().getId());
+
+            int linhasAfetadas = comando.executeUpdate();
+            if(linhasAfetadas > 0){
+                ResultSet resultado = comando.getGeneratedKeys();
+                if(resultado.next()){
+                    int id = resultado.getInt(1);
+                    vendedor.setId(id);
+                }
+            }
+            else {
+                throw new DbException("Erro inesperado. Nenhuma linha afetada");
+            }
+        }
+        catch (SQLException e){
+            throw new DbException(e.getMessage());
+        }
+        finally {
+            DB.fecharcomando(comando);
+        }
 
     }
 
     @Override
     public void update(Seller vendedor) {
+        PreparedStatement comando = null;
+        try{
+            comando = conn.prepareStatement(
+                    "UPDATE seller "+
+                            "SET Name = ?, "+
+                            "Email = ?, "+
+                            "BirthDate = ?, "+
+                            "BaseSalary = ?, "+
+                            "DepartmentId = ? "+
+                            "WHERE Id = ?"
+            );
+            comando.setString(1, vendedor.getName());
+            comando.setString(2, vendedor.getEmail());
+            comando.setDate(3, new Date(vendedor.getBirthDate().getTime()));
+            comando.setDouble(4,vendedor.getBaseSalary());
+            comando.setInt(5, vendedor.getDepartment().getId());
+            comando.setInt(6, vendedor.getId());
 
+            comando.executeUpdate();
+
+        }catch (SQLException e){
+            throw new DbException(e.getMessage());
+        }
+        finally {
+            DB.fecharcomando(comando);
+        }
     }
 
     @Override
